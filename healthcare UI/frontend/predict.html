@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Disease Prediction AI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      min-height: 100vh;
+    }
+
+    h2 {
+      color: #343a40;
+    }
+
+    .symptom-row {
+      margin-bottom: 15px;
+    }
+
+    select {
+      padding: 10px;
+      width: 200px;
+      border-radius: 5px;
+      border: 1px solid #ced4da;
+    }
+
+    button {
+      padding: 10px 20px;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .add-btn {
+      background-color: #007bff;
+    }
+
+    #predictButton {
+      background-color: #28a745;
+      margin-top: 10px;
+    }
+
+    #logoutButton {
+      background: red;
+      position: absolute;
+      bottom: 20px;   /* Fix the button at the bottom */
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #28a745;
+    }
+  </style>
+</head>
+
+<body onload="checkLogin()">
+
+  <h2>🩺 AI Disease Predictor</h2>
+
+  <div id="symptomContainer">
+    <div class="symptom-row">
+      <select class="symptom-select">
+        <option value="">-- Select Symptom --</option>
+      </select>
+    </div>
+    <div class="symptom-row">
+      <select class="symptom-select">
+        <option value="">-- Select Symptom --</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="add-btn" onclick="addSymptom()">➕ Add Symptom</button><br><br>
+  <button id="predictButton" onclick="predictDisease()">Predict Disease</button>
+
+  <div id="result"></div>
+
+  <!-- Logout button at the bottom -->
+  <button id="logoutButton" onclick="logout()">Logout</button>
+
+  <script>
+    function checkLogin() {
+      if (localStorage.getItem('loggedIn') !== 'true') {
+        alert('You must be logged in!');
+        window.location.href = 'index.html';
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('loggedIn');
+      window.location.href = 'index.html';
+    }
+
+    const symptomsList = [
+      "itching", "skin_rash", "nodal_skin_eruptions", "continuous_sneezing", "shivering",
+      "chills", "joint_pain", "stomach_pain", "acidity", "ulcers_on_tongue", "blackheads",
+      "pus_filled_pimples", "scurring"
+    ];
+
+    const maxSymptoms = 5;
+    const symptomContainer = document.getElementById('symptomContainer');
+
+    function populateDropdown(select) {
+      symptomsList.forEach(symptom => {
+        let option = document.createElement('option');
+        option.value = symptom;
+        option.textContent = symptom.replace(/_/g, ' ');
+        select.appendChild(option);
+      });
+    }
+
+    document.querySelectorAll('.symptom-select').forEach(select => populateDropdown(select));
+
+    function addSymptom() {
+      const current = document.querySelectorAll('.symptom-select').length;
+      if (current >= maxSymptoms) {
+        alert('You can select up to 5 symptoms only.');
+        return;
+      }
+      const div = document.createElement('div');
+      div.className = 'symptom-row';
+      div.innerHTML = '<select class="symptom-select"><option value="">-- Select Symptom --</option></select>';
+      symptomContainer.appendChild(div);
+      populateDropdown(div.querySelector('select'));
+    }
+
+    async function predictDisease() {
+      const selectedSymptoms = Array.from(document.querySelectorAll('.symptom-select'))
+        .map(sel => sel.value)
+        .filter(val => val !== "");
+
+      if (selectedSymptoms.length === 0) {
+        document.getElementById('result').innerHTML = "Please select at least one symptom.";
+        return;
+      }
+
+      const binaryArray = symptomsList.map(symptom => selectedSymptoms.includes(symptom) ? 1 : 0);
+
+      try {
+        const response = await fetch('https://disease-prediction-api-nom8.onrender.com/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ symptoms: binaryArray })
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch prediction. Please try again later.");
+        }
+
+        const data = await response.json();
+        document.getElementById('result').innerHTML = `Predicted Disease: <b>${data.disease}</b>`;
+      } catch (error) {
+        document.getElementById('result').innerHTML = `Error: ${error.message}`;
+      }
+    }
+  </script>
+
+</body>
+</html>

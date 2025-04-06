@@ -1,0 +1,82 @@
+# Deployment Configuration for AI Health Curator MVP
+
+version: '1.0'
+
+# Database Configuration
+database:
+  type: mysql
+  host: localhost
+  port: 3306
+  name: healthcare
+  user: medical
+  # password should be set via environment variable
+  password_env: DB_PASSWORD
+
+# WebSocket Server
+websocket:
+  host: 0.0.0.0
+  port: 8080
+  ssl:
+    enabled: true
+    cert_path: /etc/ssl/certs/websocket.crt
+    key_path: /etc/ssl/private/websocket.key
+
+# Web Server (Apache)
+web_server:
+  document_root: /var/www/healthcare-ui
+  ssl:
+    enabled: true
+    cert_path: /etc/ssl/certs/apache.crt
+    key_path: /etc/ssl/private/apache.key
+  virtual_hosts:
+    - server_name: health.example.com
+      root: /var/www/healthcare-ui/frontend
+      ssl: true
+      locations:
+        - path: /api
+          proxy_pass: http://localhost:8080
+        - path: /wearable
+          proxy_pass: http://localhost:8081
+
+# Rate Limiting
+rate_limit:
+  enabled: true
+  requests_per_second: 10
+  burst: 20
+
+# Monitoring
+monitoring:
+  enabled: true
+  endpoints:
+    - /health
+    - /metrics
+  logging:
+    level: info
+    path: /var/log/healthcare
+
+# Security
+security:
+  cors:
+    allowed_origins:
+      - https://health.example.com
+  csrf:
+    enabled: true
+  headers:
+    x_frame_options: DENY
+    x_content_type_options: nosniff
+    x_xss_protection: "1; mode=block"
+
+# Environment Variables
+environment:
+  - DB_PASSWORD
+  - JWT_SECRET
+  - API_KEY
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 0 * * *"  # Daily at midnight
+  retention_days: 7
+  storage:
+    type: local
+    path: /var/backups/healthcare

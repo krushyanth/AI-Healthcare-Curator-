@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Nearest Hospital</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            text-align: center;
+            margin-top: 100px;
+        }
+        #result {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            width: 300px;
+            margin: 0 auto;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-items: center;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Find the Nearest Hospital</h1>
+        <div id="result"></div>
+</div>
+
+<script>
+    async function findHospital() {
+        const symptoms = ["chest pain", "shortness of breath"];  // Example symptoms
+
+        const response = await fetch('/find_hospital', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ symptoms: symptoms })
+        });
+
+        const resultDiv = document.getElementById('result');
+        if (response.ok) {
+            const data = await response.json();
+            resultDiv.innerHTML = `
+                <h3>Nearest Hospital</h3>
+                <p><strong>Disease:</strong> ${data.disease}</p>
+                <p><strong>Name:</strong> ${data.hospital_name}</p>
+                <p><strong>Address:</strong> ${data.address}</p>
+                <p><strong>Distance:</strong> ${data.distance_km} km</p>
+            `;
+        } else {
+            resultDiv.innerHTML = "<p>No suitable hospital found nearby.</p>";
+        }
+    }
+</script>
+<div class="container">
+    <button onclick="findHospital()">Find Hospital</button>
+</div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+    "name": "ai-health-curator/mvp",
+    "description": "AI Health Curator MVP",
+    "require": {
+        "php": "^8.0",
+        "cboden/ratchet": "^0.4",
+        "vlucas/phpdotenv": "^5.3"
+    },
+    "require-dev": {
+        "heroku/heroku-buildpack-php": "*"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "php backend/composer-setup.php"
+        ],
+        "start": [
+            "php -S 0.0.0.0:$PORT -t frontend/"
+        ]
+    }
+}

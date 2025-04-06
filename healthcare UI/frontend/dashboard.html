@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Dashboard - AI Health Curator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .dashboard-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .full-width {
+      grid-column: 1 / -1;
+    }
+    .vital-stats {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .vital-stat {
+      text-align: center;
+      padding: 15px;
+      flex: 1;
+      min-width: 150px;
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #007bff;
+    }
+    .stat-label {
+      color: #666;
+      margin-top: 5px;
+    }
+    .chart-container {
+      height: 300px;
+      margin-top: 20px;
+    }
+    .wearable-status {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .status-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    .connected { background-color: #28a745; }
+    .disconnected { background-color: #dc3545; }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <div class="card full-width">
+      <h2>Real-time Health Monitoring</h2>
+      <div class="wearable-status">
+        <div class="status-indicator connected"></div>
+        <span>Wearable Device Connected</span>
+      </div>
+      <div class="vital-stats">
+        <div class="vital-stat">
+          <div class="stat-value" id="heart-rate">75</div>
+          <div class="stat-label">Heart Rate (BPM)</div>
+        </div>
+        <div class="vital-stat">
+          <div class="stat-value" id="blood-pressure">120/80</div>
+          <div class="stat-label">Blood Pressure</div>
+        </div>
+        <div class="vital-stat">
+          <div class="stat-value" id="temperature">98.6</div>
+          <div class="stat-label">Temperature (°F)</div>
+        </div>
+        <div class="vital-stat">
+          <div class="stat-value" id="oxygen">98</div>
+          <div class="stat-label">Blood Oxygen (%)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Heart Rate Trend</h3>
+      <div class="chart-container">
+        <canvas id="heartRateChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Activity Level</h3>
+      <div class="chart-container">
+        <canvas id="activityChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card full-width">
+      <h3>Health Insights</h3>
+      <div id="health-insights">
+        <p>Based on your recent vital signs and activity patterns:</p>
+        <ul>
+          <li>Your heart rate has been within normal range</li>
+          <li>Blood pressure readings indicate optimal levels</li>
+          <li>You've achieved 85% of your daily activity goal</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize charts
+    function initializeCharts() {
+      // Heart Rate Chart
+      const heartCtx = document.getElementById('heartRateChart').getContext('2d');
+      new Chart(heartCtx, {
+        type: 'line',
+        data: {
+          labels: ['1h ago', '45m ago', '30m ago', '15m ago', 'Now'],
+          datasets: [{
+            label: 'Heart Rate',
+            data: [72, 75, 73, 77, 75],
+            borderColor: '#007bff',
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+
+      // Activity Chart
+      const activityCtx = document.getElementById('activityChart').getContext('2d');
+      new Chart(activityCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+          datasets: [{
+            label: 'Steps',
+            data: [8000, 10000, 7500, 12000, 9000],
+            backgroundColor: '#28a745'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }
+
+    // Simulate real-time updates
+    function updateVitalSigns() {
+      const heartRate = 70 + Math.floor(Math.random() * 10);
+      const systolic = 118 + Math.floor(Math.random() * 4);
+      const diastolic = 78 + Math.floor(Math.random() * 4);
+      const temperature = 98.4 + (Math.random() * 0.4);
+      const oxygen = 97 + Math.floor(Math.random() * 3);
+
+      document.getElementById('heart-rate').textContent = heartRate;
+      document.getElementById('blood-pressure').textContent = `${systolic}/${diastolic}`;
+      document.getElementById('temperature').textContent = temperature.toFixed(1);
+      document.getElementById('oxygen').textContent = oxygen;
+    }
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeCharts();
+      setInterval(updateVitalSigns, 3000);
+    });
+  </script>
+</body>
+</html>
